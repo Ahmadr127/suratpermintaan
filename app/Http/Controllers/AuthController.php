@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Role;
+use App\Services\SimutuUserSyncService;
 
 class AuthController extends Controller
 {
@@ -25,6 +27,24 @@ class AuthController extends Controller
             'username' => 'required|string',
             'password' => 'required'
         ]);
+
+        // Sinkronisasi ringan dari Simutu: segarkan profil + status user yang login.
+        try {
+            app(SimutuUserSyncService::class)->syncForUsername($request->username);
+        } catch (\Throwable $e) {
+            Log::warning('Simutu lazy sync gagal saat login: '.$e->getMessage());
+        }
+
+        $user = \App\Models\User::where('username', $request->username)->first();
+        if (
+            $user
+            && $user->simutu_status
+            && in_array($user->simutu_status, config('simutu_sync.block_login_statuses', ['non-aktif']))
+        ) {
+            return back()->withErrors([
+                'username' => 'Akun dinonaktifkan di sistem Simutu.',
+            ])->onlyInput('username');
+        }
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $request->session()->regenerate();

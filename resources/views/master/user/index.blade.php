@@ -237,6 +237,15 @@
             </div>
         @endif
 
+        <div class="d-flex justify-content-end mb-3">
+            <form method="POST" action="{{ route('master.user.syncSimutu') }}" onsubmit="return confirm('Sinkronkan data pegawai dari Simutu? Akun & data karyawan akan dibuat/diperbarui otomatis.');">
+                @csrf
+                <button type="submit" class="btn btn-success" style="background:#005654;border-color:#005654;font-size:13px;font-weight:600;">
+                    <i class="bi bi-arrow-repeat me-1"></i> Sync dari Simutu
+                </button>
+            </form>
+        </div>
+
         <!-- ══════════════════════════════════════ -->
         <!-- TAB: MANAJEMEN USER                    -->
         <!-- ══════════════════════════════════════ -->

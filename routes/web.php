@@ -81,6 +81,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [UserController::class, 'store'])->name('store');
             Route::post('/store-one/{employee}', [UserController::class, 'storeOne'])->name('storeOne');
             Route::post('/store-all', [UserController::class, 'storeAll'])->name('storeAll');
+            Route::post('/sync-simutu', [UserController::class, 'syncFromSimutu'])->name('syncSimutu');
             Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
             Route::put('/{id}', [UserController::class, 'update'])->name('update');
             Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');

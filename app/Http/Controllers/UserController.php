@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Employee;
+use App\Services\SimutuUserSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -235,5 +236,23 @@ class UserController extends Controller
 
         $user->delete();
         return back()->with('success', 'Akun berhasil dihapus.');
+    }
+
+    /**
+     * Tarik data pegawai dari Simutu (users + employees).
+     */
+    public function syncFromSimutu()
+    {
+        try {
+            $stats = app(SimutuUserSyncService::class)->sync();
+
+            return redirect()->route('master.user.index')
+                ->with('success', "Simutu sync selesai: {$stats['checked']} dicek, {$stats['created']} akun dibuat, {$stats['updated']} akun diperbarui, {$stats['employees']} karyawan disinkron.");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal sync dari Simutu: '.$e->getMessage());
+
+            return redirect()->route('master.user.index')
+                ->with('error', 'Gagal sync dari Simutu: '.$e->getMessage());
+        }
     }
 }
