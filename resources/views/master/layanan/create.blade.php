@@ -139,15 +139,12 @@
                     <input type="text" name="nama_layanan" class="form-control" placeholder="Contoh: Surat Keterangan Rawat Inap" value="{{ old('nama_layanan') }}" required>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Kategori</label>
-                    <select name="kategori_id" id="kategoriSelect" class="form-select">
-                        <option value="">-- Pilih Kategori --</option>
-                        @foreach($kategoris as $kat)
-                            <option value="{{ $kat->id }}" {{ old('kategori_id') == $kat->id ? 'selected' : '' }}>
-                                {{ $kat->nama }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select
+                        name="kategori_id"
+                        label="Kategori"
+                        :options="$kategoris->pluck('nama', 'id')->toArray()"
+                        :selected="old('kategori_id')"
+                        placeholder="-- Pilih Kategori --" />
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Deskripsi <span class="text-muted">(opsional)</span></label>

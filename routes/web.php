@@ -70,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/create', [LayananController::class, 'create'])->name('create');
             Route::post('/', [LayananController::class, 'store'])->name('store');
             Route::get('/{id}/edit', [LayananController::class, 'edit'])->name('edit');
+            Route::get('/{id}/preview', [LayananController::class, 'preview'])->name('preview');
+            Route::post('/{id}/preview-live', [LayananController::class, 'previewLive'])->name('preview-live');
             Route::put('/{id}', [LayananController::class, 'update'])->name('update');
             Route::delete('/{id}', [LayananController::class, 'destroy'])->name('destroy');
         });

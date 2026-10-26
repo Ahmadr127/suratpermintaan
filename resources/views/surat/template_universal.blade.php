@@ -39,6 +39,13 @@
     No. {{ $data->no_permintaan }}/RM/RS.AZRA/{{ \Carbon\Carbon::parse($data->tanggal)->format('m') }}/{{ \Carbon\Carbon::parse($data->tanggal)->format('Y') }}
 </div>
 
+{{-- ===== KONTEN SURAT (gabungan) ===== --}}
+@if(!empty($layanan->konten_surat))
+<div class="mt-20">
+    {!! \App\Helpers\SuratHelper::renderIsi($layanan->konten_surat, $data) !!}
+</div>
+@else
+
 {{-- ===== KALIMAT PEMBUKA ===== --}}
 @if($layanan->kalimat_pembuka)
 <div class="mt-20">
@@ -92,6 +99,8 @@
 </div>
 @endif
 
+@endif {{-- end konten_surat fallback --}}
+
 {{-- ===== FOOTER / TTD ===== --}}
 @if($layanan->ttd_kiri_label || $layanan->ttd_kanan_label)
 @php $tglStr = 'Bogor, ' . \Carbon\Carbon::parse($data->tanggal)->translatedFormat('F d') . '<sup>th</sup>, ' . \Carbon\Carbon::parse($data->tanggal)->format('Y'); @endphp
@@ -128,8 +137,10 @@
 </table>
 @endif
 
+@if(empty($preview))
 <script>
     window.onload = function() { window.print(); }
 </script>
+@endif
 </body>
 </html>

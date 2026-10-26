@@ -149,23 +149,12 @@
                                placeholder="cth: Rekam Medis, Farmasi, Marketing..." required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Role yang Dapat Mengakses
-                            <span class="text-muted fw-normal">(bisa pilih lebih dari satu)</span>
-                        </label>
-                        <div style="background:#f8fffe; border:1.5px solid #d0e8e7; border-radius:10px; padding:10px 14px; max-height:200px; overflow-y:auto;">
-                            @foreach($roles as $r)
-                            <div class="form-check mb-1">
-                                <input class="form-check-input" type="checkbox"
-                                       name="roles[]" value="{{ $r->name }}"
-                                       id="role_{{ $r->name }}"
-                                       {{ in_array($r->name, old('roles', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="role_{{ $r->name }}" style="font-size:13px;">
-                                    {{ $r->label }}
-                                </label>
-                            </div>
-                            @endforeach
-                        </div>
-                        <div class="form-text">Centang role yang boleh melihat kategori ini.</div>
+                        <x-searchable-multi-select
+                            name="roles"
+                            label="Role yang Dapat Mengakses"
+                            :options="$roles->pluck('label', 'name')->toArray()"
+                            :selected="old('roles', [])"
+                            placeholder="Pilih role..." />
                     </div>
                     <div class="col-12">
                         <label class="form-label">Deskripsi</label>

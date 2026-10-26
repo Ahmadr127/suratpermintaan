@@ -18,7 +18,7 @@ class RekamMedisUserSeeder extends Seeder
             'name' => 'Rekam Medis',
             'username' => 'rekam_medis',
             'email' => 'rekam_medis@example.com',
-            'password' => Hash::make('rekam_medis123'),
+            'password' => Hash::make('rsazra'),
             'role' => 'rekam_medis',
         ]);
     }

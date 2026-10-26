@@ -18,6 +18,8 @@ class Layanan extends Model
         'is_active',
         'kalimat_penutup',
         'kalimat_penutup_en',
+        'konten_surat',
+        'konten_surat_en',
         'ttd_kiri_label',
         'ttd_kiri_label_en',
         'ttd_kanan_label',

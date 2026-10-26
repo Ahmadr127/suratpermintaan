@@ -11,6 +11,12 @@ return new class extends Migration
         Schema::table('roles', function (Blueprint $table) {
             $table->string('redirect_to')->default('/permintaan')->after('color');
         });
+
+        // Role 'user' (pengguna umum) tidak punya akses ke /permintaan,
+        // arahkan ke halaman layanan miliknya.
+        \Illuminate\Support\Facades\DB::table('roles')
+            ->where('name', 'user')
+            ->update(['redirect_to' => '/layanan']);
     }
 
     public function down(): void

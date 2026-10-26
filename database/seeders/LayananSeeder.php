@@ -40,7 +40,12 @@ class LayananSeeder extends Seeder
             ],
         ];
 
+        // Layanan universal (template surat) dikelompokkan ke kategori REKAM MEDIS,
+        // konsisten dengan penanganan pengajuan "lain-lain" (UserLayananController).
+        $rekamMedisKategoriId = \App\Models\Kategori::where('nama', 'REKAM MEDIS')->value('id');
+
         foreach ($layanans as $layanan) {
+            $layanan['kategori_id'] = $layanan['kategori_id'] ?? $rekamMedisKategoriId;
             Layanan::firstOrCreate(
                 ['nama_layanan' => $layanan['nama_layanan']],
                 $layanan

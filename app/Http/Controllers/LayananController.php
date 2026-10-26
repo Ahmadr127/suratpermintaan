@@ -65,6 +65,8 @@ class LayananController extends Controller
             'is_active'          => $request->has('is_active') ? 1 : 0,
             'kalimat_penutup'    => $request->kalimat_penutup,
             'kalimat_penutup_en' => $request->kalimat_penutup_en,
+            'konten_surat'       => $request->konten_surat,
+            'konten_surat_en'    => $request->konten_surat_en,
             'ttd_kiri_label'     => $request->ttd_kiri_label,
             'ttd_kiri_label_en'  => $request->ttd_kiri_label_en,
             'ttd_kanan_label'    => $request->ttd_kanan_label,
@@ -125,6 +127,8 @@ class LayananController extends Controller
             'is_active'          => $request->has('is_active') ? 1 : 0,
             'kalimat_penutup'    => $request->kalimat_penutup,
             'kalimat_penutup_en' => $request->kalimat_penutup_en,
+            'konten_surat'       => $request->konten_surat,
+            'konten_surat_en'    => $request->konten_surat_en,
             'ttd_kiri_label'     => $request->ttd_kiri_label,
             'ttd_kiri_label_en'  => $request->ttd_kiri_label_en,
             'ttd_kanan_label'    => $request->ttd_kanan_label,
@@ -151,6 +155,117 @@ class LayananController extends Controller
         Layanan::findOrFail($id)->delete();
         return redirect()->route('master.layanan.index')
             ->with('success', 'Layanan berhasil dihapus');
+    }
+
+    /**
+     * Preview surat untuk layanan (data contoh).
+     */
+    public function preview(string $id)
+    {
+        $layanan = Layanan::with(['biodataFields', 'isiTemplate'])->findOrFail($id);
+
+        if (empty($layanan->template_path)) {
+            abort(404, 'Template tidak ditemukan');
+        }
+
+        // Data contoh untuk preview
+        $data = new \App\Models\Permintaan([
+            'no_permintaan' => 'REQ-PREVIEW',
+            'layanan' => $layanan->nama_layanan,
+            'nama' => 'Nama Contoh',
+            'umur' => '30 Tahun',
+            'kode_rm' => 'RM-001',
+            'alamat' => 'Jl. Contoh No. 1',
+            'no_telepon' => '08123456789',
+            'tanggal' => now(),
+            'status' => 'pending',
+            'nm_penerima' => 'Penerima Contoh',
+            'nm_petugas_rm' => 'Petugas Contoh',
+            'nama_persetujuan' => 'Nama Persetujuan',
+        ]);
+
+        return view($layanan->template_path, compact('data', 'layanan'));
+    }
+
+    /**
+     * Preview live (data dari form, belum disimpan).
+     */
+    public function previewLive(Request $request, string $id)
+    {
+        $layanan = Layanan::with(['biodataFields', 'isiTemplate'])->findOrFail($id);
+
+        if (empty($layanan->template_path)) {
+            abort(404, 'Template tidak ditemukan');
+        }
+
+        // Override skalar dari request
+        $layanan->judul_surat = $request->input('judul_surat', $layanan->judul_surat);
+        $layanan->judul_surat_en = $request->input('judul_surat_en', $layanan->judul_surat_en);
+        $layanan->kalimat_pembuka = $request->input('kalimat_pembuka', $layanan->kalimat_pembuka);
+        $layanan->kalimat_pembuka_en = $request->input('kalimat_pembuka_en', $layanan->kalimat_pembuka_en);
+        $layanan->kalimat_penutup = $request->input('kalimat_penutup', $layanan->kalimat_penutup);
+        $layanan->kalimat_penutup_en = $request->input('kalimat_penutup_en', $layanan->kalimat_penutup_en);
+        $layanan->konten_surat = $request->input('konten_surat', $layanan->konten_surat);
+        $layanan->ttd_kiri_label = $request->input('ttd_kiri_label', $layanan->ttd_kiri_label);
+        $layanan->ttd_kiri_label_en = $request->input('ttd_kiri_label_en', $layanan->ttd_kiri_label_en);
+        $layanan->ttd_kanan_label = $request->input('ttd_kanan_label', $layanan->ttd_kanan_label);
+        $layanan->ttd_kanan_label_en = $request->input('ttd_kanan_label_en', $layanan->ttd_kanan_label_en);
+        $layanan->ttd_tanggal_posisi = $request->input('ttd_tanggal_posisi', $layanan->ttd_tanggal_posisi);
+        $layanan->ttd_kanan_sumber = $request->input('ttd_kanan_sumber', $layanan->ttd_kanan_sumber ?? 'persetujuan');
+        $layanan->show_dokter_section = $request->has('show_dokter_section') ? 1 : 0;
+        $layanan->show_nama_dokter = $request->has('show_nama_dokter') ? 1 : 0;
+        $layanan->show_nama_suami = $request->has('show_nama_suami') ? 1 : 0;
+        $layanan->show_bangsa = $request->has('show_bangsa') ? 1 : 0;
+
+        // Biodata fields dari form
+        $labels = $request->input('biodata_label', []);
+        $labelsEn = $request->input('biodata_label_en', []);
+        $keys = $request->input('biodata_field_key', []);
+        $suffixes = $request->input('biodata_suffix', []);
+        $suffixesEn = $request->input('biodata_suffix_en', []);
+        $adminFields = $request->input('biodata_is_admin', []);
+
+        $fields = collect();
+        foreach ($keys as $i => $key) {
+            if (empty($key)) continue;
+            $fields->push(new \App\Models\LayananBiodataField([
+                'label' => $labels[$i] ?? '',
+                'label_en' => $labelsEn[$i] ?? null,
+                'field_key' => $key,
+                'suffix' => $suffixes[$i] ?? null,
+                'suffix_en' => $suffixesEn[$i] ?? null,
+                'urutan' => $i,
+                'is_admin_field' => isset($adminFields[$i]) ? 1 : 0,
+            ]));
+        }
+        $layanan->setRelation('biodataFields', $fields);
+
+        // Isi template dari form
+        $isiId = $request->input('isi_id');
+        $isiEn = $request->input('isi_en');
+        $layanan->setRelation('isiTemplate', $isiId ? new \App\Models\LayananIsiTemplate([
+            'isi_id' => $isiId,
+            'isi_en' => $isiEn,
+        ]) : null);
+
+        $data = new \App\Models\Permintaan([
+            'no_permintaan' => 'REQ-PREVIEW',
+            'layanan' => $layanan->nama_layanan,
+            'nama' => 'Nama Contoh',
+            'umur' => '30 Tahun',
+            'kode_rm' => 'RM-001',
+            'alamat' => 'Jl. Contoh No. 1',
+            'no_telepon' => '08123456789',
+            'tanggal' => now(),
+            'status' => 'pending',
+            'nm_penerima' => 'Penerima Contoh',
+            'nm_petugas_rm' => 'Petugas Contoh',
+            'nama_persetujuan' => 'Nama Persetujuan',
+            'nama_dokter' => 'Dr. Contoh',
+        ]);
+
+        $preview = true;
+        return view($layanan->template_path, compact('data', 'layanan', 'preview'));
     }
 
     // ── PRIVATE HELPERS ──────────────────────────────────────────────

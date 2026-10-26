@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <link rel="icon" type="image/jpeg" href="http://localhost/assets/imagesicon.jpg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Layanan</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e6f7f6, #f4fbfa); min-height: 100vh; display: flex; margin: 0; overflow-x: hidden; }
+    .sidebar { width: 240px; min-height: 100vh; flex-shrink: 0; background: #005654; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-brand { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: 10px; }
+    .sidebar-brand img { height: 38px; width: auto; filter: brightness(0) invert(1); }
+    .sidebar-brand-text .title { font-size: 13px; font-weight: 800; color: #fff; line-height: 1.2; }
+    .sidebar-brand-text .sub { font-size: 10px; color: rgba(255,255,255,.6); }
+    .sidebar-nav { padding: 16px 12px; flex: 1; }
+    .sidebar-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .8px; padding: 0 8px; margin-bottom: 6px; margin-top: 12px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: rgba(255,255,255,.75); font-size: 13.5px; font-weight: 500; text-decoration: none; transition: all .2s; margin-bottom: 2px; }
+    .sidebar-link i { font-size: 16px; flex-shrink: 0; }
+    .sidebar-link:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .sidebar-link.active-page { background: #81BD41; color: #fff; font-weight: 700; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.1); }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.08); margin-bottom: 8px; }
+    .sidebar-user i { font-size: 20px; color: rgba(255,255,255,.8); }
+    .sidebar-user .name { font-size: 13px; font-weight: 600; color: #fff; }
+    .sidebar-user .role { font-size: 11px; color: rgba(255,255,255,.5); }
+    .btn-logout-sidebar { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 9px; border-radius: 10px; background: #7a2020; color: #fff; border: 1px solid #a03030; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-logout-sidebar:hover { background: #9b2828; }
+    .sidebar-dropdown-toggle { background: none; border: none; text-align: left; width: 100%; }
+    .sidebar-chevron { transition: transform .25s; font-size: 12px; }
+    .sidebar-dropdown.open .sidebar-chevron { transform: rotate(180deg); }
+    .sidebar-submenu { overflow: hidden; max-height: 0; transition: max-height .3s ease; }
+    .sidebar-dropdown.open .sidebar-submenu { max-height: 200px; }
+    .sidebar-sublink { display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 32px; border-radius: 8px; color: rgba(255,255,255,.65); font-size: 13px; font-weight: 500; text-decoration: none; transition: all .2s; margin-bottom: 1px; }
+    .sidebar-sublink:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .sidebar-sublink.active { background: #6aaa30; color: #fff; font-weight: 600; }
+    .main-wrapper { margin-left: 240px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; min-width: 0; }
+    .topbar { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 14px 28px; }
+    .topbar-title { font-size: 18px; font-weight: 800; color: #005654; }
+    .topbar-sub { font-size: 12px; color: #6b8f8a; }
+    .form-card { background: #fff; border-radius: 18px; box-shadow: 0 8px 28px rgba(0,0,0,.07); padding: 32px 36px; margin-bottom: 24px; }
+    .section-title { font-size: 15px; font-weight: 700; color: #005654; border-bottom: 2px solid #e0f0ef; padding-bottom: 8px; margin-bottom: 20px; }
+    .form-label { font-weight: 600; font-size: 13px; color: #333; margin-bottom: 5px; }
+    .form-label .text-muted { font-weight: 400; font-size: 11px; }
+    .form-control, .form-select { border-radius: 10px; border: 1.5px solid #d0e8e7; font-size: 13px; transition: border-color .2s, box-shadow .2s; }
+    .form-control:focus, .form-select:focus { border-color: #005654; box-shadow: 0 0 0 3px rgba(0,86,84,.1); outline: none; }
+    .btn-update { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 28px; background: #b8860b; color: #fff; font-size: 14px; font-weight: 700; border-radius: 10px; border: none; cursor: pointer; transition: background .2s; }
+    .btn-update:hover { background: #9a7209; }
+    .btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; border: 1.5px solid #d0d0d0; color: #555; background: #fff; text-decoration: none; transition: all .2s; }
+    .btn-back:hover { border-color: #005654; color: #005654; }
+    .biodata-row { background: #f8fffe; border: 1.5px solid #d0e8e7; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; position: relative; }
+    .btn-remove-row { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #c0392b; font-size: 18px; cursor: pointer; line-height: 1; }
+    .btn-add-row { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; border: 1.5px dashed #005654; color: #005654; background: #f0f9f8; cursor: pointer; transition: all .2s; }
+    .btn-add-row:hover { background: #e0f5f4; }
+    .field-key-hint { font-size: 11px; color: #888; margin-top: 3px; }
+    .placeholder-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-family: monospace; margin: 2px; cursor: pointer; }
+    .placeholder-badge:hover { background: #c8e6c9; }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <img src="http://localhost/assets/logo.png" alt="Logo">
+        <div class="sidebar-brand-text">
+            <div class="title">Rekam Medis</div>
+            <div class="sub">Sistem Informasi</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-label">Menu</div>
+        <a href="http://localhost/permintaan" class="sidebar-link"><i class="bi bi-list-ul"></i> Permintaan</a>
+                <div class="sidebar-dropdown open">
+            <button class="sidebar-link sidebar-dropdown-toggle w-100" onclick="toggleSidebarDropdown(this)">
+                <i class="bi bi-gear-fill"></i><span>Master</span>
+                <i class="bi bi-chevron-down sidebar-chevron ms-auto"></i>
+            </button>
+            <div class="sidebar-submenu">
+                <a href="http://localhost/master/kategori" class="sidebar-sublink"><i class="bi bi-tags-fill"></i> Kategori</a>
+                <a href="http://localhost/master/layanan" class="sidebar-sublink active"><i class="bi bi-file-earmark-text-fill"></i> Layanan</a>
+            </div>
+        </div>
+                        <div class="sidebar-dropdown">
+            <button class="sidebar-link sidebar-dropdown-toggle w-100" onclick="toggleSidebarDropdown(this)">
+                <i class="bi bi-people-fill"></i><span>Akun</span>
+                <i class="bi bi-chevron-down sidebar-chevron ms-auto"></i>
+            </button>
+            <div class="sidebar-submenu">
+                <a href="http://localhost/master/user?tab=user" class="sidebar-sublink"><i class="bi bi-person-fill"></i> Manajemen User</a>
+                <a href="http://localhost/master/user?tab=role" class="sidebar-sublink"><i class="bi bi-shield-fill"></i> Manajemen Role</a>
+                <a href="http://localhost/master/user?tab=karyawan" class="sidebar-sublink"><i class="bi bi-person-badge-fill"></i> Data Karyawan</a>
+            </div>
+        </div>
+            </nav>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <i class="bi bi-person-circle"></i>
+            <div><div class="name">Administrator</div><div class="role">Admin</div></div>
+        </div>
+        <form method="POST" action="http://localhost/logout" class="m-0">
+            <input type="hidden" name="_token" value="5eiwuT2WUsGdiFvhEQ5ZbgVGEs3AhGp9JJqVYU8R" autocomplete="off">            <button type="submit" class="btn-logout-sidebar"><i class="bi bi-box-arrow-right"></i> Keluar</button>
+        </form>
+    </div>
+</aside>
+
+<div class="main-wrapper">
+    <div class="topbar">
+        <div class="topbar-title">Edit Layanan</div>
+        <div class="topbar-sub">Sistem Informasi Rekam Medis</div>
+    </div>
+    <div class="container-fluid px-4 px-md-5 py-4">
+        <div class="mb-3">
+            <a href="http://localhost/master/layanan" class="btn-back"><i class="bi bi-arrow-left"></i> Kembali</a>
+        </div>
+
+        
+        <ul class="nav nav-tabs mb-3" id="layananTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-form-btn" data-bs-toggle="tab" data-bs-target="#tab-form" type="button" role="tab">Form Edit</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-preview-btn" data-bs-toggle="tab" data-bs-target="#tab-preview" type="button" role="tab">Preview Surat</button>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-form" role="tabpanel">
+        <form method="POST" action="http://localhost/master/layanan/1">
+        <input type="hidden" name="_token" value="5eiwuT2WUsGdiFvhEQ5ZbgVGEs3AhGp9JJqVYU8R" autocomplete="off">        <input type="hidden" name="_method" value="PUT">
+        
+        <div class="form-card">
+            <div class="section-title"><i class="bi bi-info-circle me-2"></i>Informasi Layanan</div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nama Layanan <span class="text-danger">*</span></label>
+                    <input type="text" name="nama_layanan" class="form-control" value="Surat Keterangan Rawat Inap" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Kategori</label>
+                    <select name="kategori_id" id="kategoriSelect" class="form-select">
+                        <option value="">-- Pilih Kategori --</option>
+                                                    <option value="1"
+                                >
+                                ADMIN UMUM &amp; ALIH DAYA
+                            </option>
+                                                    <option value="2"
+                                >
+                                ADMINISTRATOR
+                            </option>
+                                                    <option value="3"
+                                >
+                                ADMISSION
+                            </option>
+                                                    <option value="4"
+                                >
+                                AKUNTANSI &amp; PAJAK
+                            </option>
+                                                    <option value="5"
+                                >
+                                CASEMIX
+                            </option>
+                                                    <option value="6"
+                                >
+                                CSSD
+                            </option>
+                                                    <option value="7"
+                                >
+                                DIREKTUR
+                            </option>
+                                                    <option value="8"
+                                >
+                                DIVISI KEPERAWATAN
+                            </option>
+                                                    <option value="9"
+                                >
+                                DOKTER JAGA
+                            </option>
+                                                    <option value="10"
+                                >
+                                DUTY OFFICER
+                            </option>
+                                                    <option value="11"
+                                >
+                                HEMODIALISA
+                            </option>
+                                                    <option value="12"
+                                >
+                                ICU
+                            </option>
+                                                    <option value="13"
+                                >
+                                INSTALASI FARMASI
+                            </option>
+                                                    <option value="14"
+                                >
+                                INSTALASI GAWAT DARURAT
+                            </option>
+                                                    <option value="15"
+                                >
+                                INSTALASI GIZI
+                            </option>
+                                                    <option value="16"
+                                >
+                                INSTALASI KAMAR OPERASI
+                            </option>
+                                                    <option value="17"
+                                >
+                                INSTALASI LABORATORIUM
+                            </option>
+                                                    <option value="18"
+                                >
+                                INSTALASI RADIOLOGI
+                            </option>
+                                                    <option value="19"
+                                >
+                                IPSRS
+                            </option>
+                                                    <option value="20"
+                                >
+                                IT
+                            </option>
+                                                    <option value="21"
+                                >
+                                KAMAR BERSALIN
+                            </option>
+                                                    <option value="22"
+                                >
+                                KAMAR OPERASI
+                            </option>
+                                                    <option value="23"
+                                >
+                                KASIR
+                            </option>
+                                                    <option value="24"
+                                >
+                                KESEHATAN LINGKUNGAN
+                            </option>
+                                                    <option value="25"
+                                >
+                                KEUANGAN
+                            </option>
+                                                    <option value="26"
+                                >
+                                KTKA
+                            </option>
+                                                    <option value="27"
+                                >
+                                LAUNDRY
+                            </option>
+                                                    <option value="28"
+                                >
+                                LEGAL
+                            </option>
+                                                    <option value="29"
+                                >
+                                LOGISTIK UMUM
+                            </option>
+                                                    <option value="30"
+                                >
+                                MAINTENANCE
+                            </option>
+                                                    <option value="31"
+                                >
+                                MARKETING
+                            </option>
+                                                    <option value="32"
+                                >
+                                MPP
+                            </option>
+                                                    <option value="33"
+                                >
+                                MUTU
+                            </option>
+                                                    <option value="34"
+                                >
+                                NICU &amp; PICU
+                            </option>
+                                                    <option value="35"
+                                >
+                                NS 1
+                            </option>
+                                                    <option value="36"
+                                >
+                                NS 2
+                            </option>
+                                                    <option value="37"
+                                >
+                                NS 3
+                            </option>
+                                                    <option value="38"
+                                >
+                                NS 4
+                            </option>
+                                                    <option value="39"
+                                >
+                                NS 6
+                            </option>
+                                                    <option value="40"
+                                >
+                                NS 7
+                            </option>
+                                                    <option value="41"
+                                >
+                                NS 8
+                            </option>
+                                                    <option value="42"
+                                >
+                                PELAYANAN MEDIK
+                            </option>
+                                                    <option value="43"
+                                >
+                                PENGADAAN UMUM
+                            </option>
+                                                    <option value="44"
+                                >
+                                PENUNJANG MEDIK
+                            </option>
+                                                    <option value="45"
+                                >
+                                PERINATOLOGI
+                            </option>
+                                                    <option value="46"
+                                >
+                                PPI
+                            </option>
+                                                    <option value="47"
+                                >
+                                PT. ASP
+                            </option>
+                                                    <option value="48"
+                                >
+                                RAWAT INAP
+                            </option>
+                                                    <option value="49"
+                                >
+                                RAWAT JALAN
+                            </option>
+                                                    <option value="50"
+                                >
+                                REHABILITASI MEDIK
+                            </option>
+                                                    <option value="51"
+                                selected>
+                                REKAM MEDIS
+                            </option>
+                                                    <option value="52"
+                                >
+                                RUMAH TANGGA
+                            </option>
+                                                    <option value="53"
+                                >
+                                SDM
+                            </option>
+                                                    <option value="54"
+                                >
+                                SEKRETARIAT
+                            </option>
+                                                    <option value="55"
+                                >
+                                TRANSPORTASI &amp; KURIR
+                            </option>
+                                                    <option value="56"
+                                >
+                                UMUM
+                            </option>
+                                            </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Deskripsi</label>
+                    <input type="text" name="deskripsi" class="form-control" value="Surat keterangan untuk pasien yang menjalani rawat inap">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Judul Surat (Indonesia)</label>
+                    <input type="text" name="judul_surat" class="form-control" value="SURAT KETERANGAN RAWAT INAP">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Judul Surat (Inggris)</label>
+                    <input type="text" name="judul_surat_en" class="form-control" value="Inpatient Certificate">
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" checked>
+                        <label class="form-check-label" for="is_active" style="font-size:13px; font-weight:500;">Aktif</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="section-title mt-2" style="font-size:13px;"><i class="bi bi-toggles me-1"></i>Konfigurasi Field Tambahan di Form Pengajuan</div>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="show_dokter_section" id="show_dokter_section" value="1" checked>
+                            <label class="form-check-label" for="show_dokter_section" style="font-size:13px; font-weight:500;">Tampilkan bagian Korespondensi (Nama Peminta, Email, dll)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="show_nama_dokter" id="show_nama_dokter" value="1" checked>
+                            <label class="form-check-label" for="show_nama_dokter" style="font-size:13px; font-weight:500;">Tampilkan field Nama Dokter</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="show_nama_suami" id="show_nama_suami" value="1" checked>
+                            <label class="form-check-label" for="show_nama_suami" style="font-size:13px; font-weight:500;">Tampilkan field Nama Suami</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="show_bangsa" id="show_bangsa" value="1" checked>
+                            <label class="form-check-label" for="show_bangsa" style="font-size:13px; font-weight:500;">Tampilkan field Bangsa</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="form-card">
+            <div class="section-title"><i class="bi bi-file-earmark-text me-2"></i>Konten Surat (Gabungan) <span class="text-muted fw-normal" style="font-size:12px;">— opsional, jika diisi akan menggantikan Kalimat Pembuka + Isi Surat + Penutup</span></div>
+            <div class="mb-3">
+            <label class="form-label" for="tmce_6adefa10f1e20">Konten Surat (gabungan)</label>
+        <textarea id="tmce_6adefa10f1e20" name="konten_surat" class="form-control " rows="16" placeholder=""></textarea>
+</div>
+
+<script src="/tinymce/js/tinymce/tinymce.min.js"></script>
+<script>
+    (function () {
+        var selector = '#tmce_6adefa10f1e20';
+        if (typeof tinymce === 'undefined') return;
+        tinymce.init({
+            selector: selector,
+            base_url: '/tinymce/js/tinymce',
+            suffix: '.min',
+            height: 600,
+            menubar: false,
+            plugins: 'lists link table code searchreplace fullscreen visualblocks',
+            toolbar: 'undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist | link table | code fullscreen',
+            min_height: 120,
+            license_key: 'gpl',
+            entity_encoding: 'raw',
+            convert_urls: false,
+            branding: false,
+            promotion: false,
+            setup: function (editor) {
+                editor.on('change input undo redo', function () {
+                    editor.save();
+                    var ta = document.querySelector(selector);
+                    if (ta) ta.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            }
+        });
+    })();
+</script>
+        </div>
+
+        
+                <div class="form-card">
+            <div class="section-title"><i class="bi bi-person-lines-fill me-2"></i>Kolom Biodata</div>
+            <p class="text-muted" style="font-size:12.5px;">Tentukan kolom biodata yang tampil di surat. Urutan sesuai posisi di bawah.</p>
+
+            <div id="biodata-container">
+                                <div class="biodata-row">
+                    <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="bi bi-x-circle-fill"></i></button>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Label (ID)</label>
+                            <input type="text" name="biodata_label[]" class="form-control" value="Nama">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Label (EN)</label>
+                            <input type="text" name="biodata_label_en[]" class="form-control" value="Name">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Field Key</label>
+                            <input type="text" name="biodata_field_key[]" class="form-control" value="nama">
+                            <div class="field-key-hint">Nama kolom di database</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (ID)</label>
+                            <input type="text" name="biodata_suffix[]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (EN)</label>
+                            <input type="text" name="biodata_suffix_en[]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end pb-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="biodata_is_admin[]" value="1" >
+                                <label class="form-check-label" style="font-size:12px;">Diisi Admin</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <div class="biodata-row">
+                    <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="bi bi-x-circle-fill"></i></button>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Label (ID)</label>
+                            <input type="text" name="biodata_label[]" class="form-control" value="Umur">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Label (EN)</label>
+                            <input type="text" name="biodata_label_en[]" class="form-control" value="Age">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Field Key</label>
+                            <input type="text" name="biodata_field_key[]" class="form-control" value="umur">
+                            <div class="field-key-hint">Nama kolom di database</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (ID)</label>
+                            <input type="text" name="biodata_suffix[]" class="form-control" value="Tahun">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (EN)</label>
+                            <input type="text" name="biodata_suffix_en[]" class="form-control" value="years old">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end pb-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="biodata_is_admin[]" value="1" >
+                                <label class="form-check-label" style="font-size:12px;">Diisi Admin</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <div class="biodata-row">
+                    <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="bi bi-x-circle-fill"></i></button>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Label (ID)</label>
+                            <input type="text" name="biodata_label[]" class="form-control" value="No. Rekam Medis">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Label (EN)</label>
+                            <input type="text" name="biodata_label_en[]" class="form-control" value="Medical Record Number">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Field Key</label>
+                            <input type="text" name="biodata_field_key[]" class="form-control" value="kode_rm">
+                            <div class="field-key-hint">Nama kolom di database</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (ID)</label>
+                            <input type="text" name="biodata_suffix[]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (EN)</label>
+                            <input type="text" name="biodata_suffix_en[]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end pb-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="biodata_is_admin[]" value="1" >
+                                <label class="form-check-label" style="font-size:12px;">Diisi Admin</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <div class="biodata-row">
+                    <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="bi bi-x-circle-fill"></i></button>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label">Label (ID)</label>
+                            <input type="text" name="biodata_label[]" class="form-control" value="Alamat">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Label (EN)</label>
+                            <input type="text" name="biodata_label_en[]" class="form-control" value="Address">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Field Key</label>
+                            <input type="text" name="biodata_field_key[]" class="form-control" value="alamat">
+                            <div class="field-key-hint">Nama kolom di database</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (ID)</label>
+                            <input type="text" name="biodata_suffix[]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Suffix (EN)</label>
+                            <input type="text" name="biodata_suffix_en[]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end pb-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="biodata_is_admin[]" value="1" >
+                                <label class="form-check-label" style="font-size:12px;">Diisi Admin</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                            </div>
+            <button type="button" class="btn-add-row mt-2" onclick="addBiodataRow()">
+                <i class="bi bi-plus-circle"></i> Tambah Kolom Biodata
+            </button>
+
+            <div class="mt-3 p-3" style="background:#f8f9fa; border-radius:10px; font-size:12px;">
+                <strong>Field key yang tersedia:</strong><br>
+                <span class="placeholder-badge" onclick="copyText('nama')">nama</span>
+                <span class="placeholder-badge" onclick="copyText('umur')">umur</span>
+                <span class="placeholder-badge" onclick="copyText('bangsa')">bangsa</span>
+                <span class="placeholder-badge" onclick="copyText('kode_rm')">kode_rm</span>
+                <span class="placeholder-badge" onclick="copyText('alamat')">alamat</span>
+                <span class="placeholder-badge" onclick="copyText('no_telepon')">no_telepon</span>
+                <span class="placeholder-badge" onclick="copyText('diagnosis')">diagnosis</span>
+                <span class="placeholder-badge" onclick="copyText('poliklinik')">poliklinik</span>
+                <span class="placeholder-badge" onclick="copyText('tgl_masuk')">tgl_masuk</span>
+                <span class="placeholder-badge" onclick="copyText('tgl_keluar')">tgl_keluar</span>
+                <span class="placeholder-badge" onclick="copyText('tgl_periksa')">tgl_periksa</span>
+                <span class="placeholder-badge" onclick="copyText('tgl_berobat')">tgl_berobat</span>
+                <span class="placeholder-badge" onclick="copyText('usia_kehamilan_minggu')">usia_kehamilan_minggu</span>
+                <span class="placeholder-badge" onclick="copyText('usia_kehamilan_hari')">usia_kehamilan_hari</span>
+                <span class="placeholder-badge" onclick="copyText('no_surat_kelahiran')">no_surat_kelahiran</span>
+                <span class="placeholder-badge" onclick="copyText('jenis_kelamin_bayi')">jenis_kelamin_bayi</span>
+                <span class="placeholder-badge" onclick="copyText('tgl_lahir_bayi')">tgl_lahir_bayi</span>
+                <span class="placeholder-badge" onclick="copyText('jam_lahir_bayi')">jam_lahir_bayi</span>
+                <span class="placeholder-badge" onclick="copyText('nama_suami')">nama_suami</span>
+                <span class="placeholder-badge" onclick="copyText('email_peminta')">email_peminta</span>
+                <span class="placeholder-badge" onclick="copyText('no_whatsapp')">no_whatsapp</span>
+                <span class="placeholder-badge" onclick="copyText('up')">up</span>
+                <span class="placeholder-badge" onclick="copyText('jumlah_form_asuransi')">jumlah_form_asuransi</span>
+                <span class="placeholder-badge" onclick="copyText('tgl_rencana_kirim')">tgl_rencana_kirim</span>
+            </div>
+        </div>
+
+        
+        
+        <div class="form-card">
+            <div class="section-title"><i class="bi bi-file-text me-2"></i>Isi Surat</div>
+            <p class="text-muted" style="font-size:12.5px;">
+                
+                Gunakan <code>{{field_key}}</code> untuk data dinamis.
+                Format tanggal: <code>{{tgl_masuk|date:d F Y}}</code>.
+                
+                Format teks: <code>[[bold:teks]]</code>, <code>[[underline:teks]]</code>.
+            </p>
+            
+        </div>
+
+        
+        <div class="form-card">
+            <div class="section-title"><i class="bi bi-pen me-2"></i>Footer / Tanda Tangan</div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Label TTD Kiri (ID)</label>
+                    <input type="text" name="ttd_kiri_label" class="form-control" value="Dokter yang merawat,">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Label TTD Kiri (EN)</label>
+                    <input type="text" name="ttd_kiri_label_en" class="form-control" value="Attending Doctor,">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Label TTD Kanan (ID) <span class="text-muted">— kosongkan jika tidak ada</span></label>
+                    <input type="text" name="ttd_kanan_label" class="form-control" value="Menyetujui data kesehatan saya diberikan kepada pihak ketiga">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Label TTD Kanan (EN)</label>
+                    <input type="text" name="ttd_kanan_label_en" class="form-control" value="Approving my health data given to third parties">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">TTD Kanan diisi oleh</label>
+                    <select name="ttd_kanan_sumber" class="form-select">
+                        <option value="persetujuan" selected>Nama Persetujuan (diisi admin)</option>
+                        <option value="dokter" >Nama Dokter (dari pengajuan)</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Posisi Tanggal</label>
+                    <select name="ttd_tanggal_posisi" class="form-select">
+                        <option value="">— Tidak tampilkan tanggal —</option>
+                        <option value="kiri" selected>Di atas TTD Kiri</option>
+                        <option value="kanan" >Di atas TTD Kanan</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+         
+
+        <div class="d-flex gap-3 mb-5" style="margin-top: 24px;">
+            <button type="submit" class="btn-update"><i class="bi bi-save"></i> Update Layanan</button>
+            <a href="http://localhost/master/layanan" class="btn-back">Batal</a>
+        </div>
+
+        </form>
+            </div>
+            <div class="tab-pane fade" id="tab-preview" role="tabpanel">
+                <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <strong><i class="bi bi-eye me-2"></i>Preview Surat</strong>
+        <span id="preview-status-1" class="text-muted small">Memuat...</span>
+    </div>
+    <div class="card-body p-0">
+        <iframe id="preview-iframe-1" src="http://localhost/master/layanan/1/preview" style="width:100%;height:800px;border:0;"></iframe>
+    </div>
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+(function () {
+    var $ = window.jQuery;
+    if (!$) return;
+    var form = document.querySelector('form[action*="master/layanan"]');
+    var iframe = document.getElementById('preview-iframe-1');
+    var status = document.getElementById('preview-status-1');
+    var liveUrl = 'http://localhost/master/layanan/1/preview-live';
+    var csrf = document.querySelector('input[name="_token"]')?.value;
+    var timer = null;
+
+    function updatePreview() {
+        if (!form || !liveUrl) return;
+        var fd = new FormData(form);
+        fd.delete('_method');
+        status.textContent = 'Memperbarui...';
+        fetch(liveUrl, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'text/html' },
+            body: fd
+        }).then(function (r) { return r.text(); }).then(function (html) {
+            iframe.srcdoc = html;
+            status.textContent = 'Terbaru';
+        }).catch(function () {
+            status.textContent = 'Gagal memperbarui';
+        });
+    }
+
+    if (form) {
+        form.addEventListener('input', function () {
+            clearTimeout(timer);
+            timer = setTimeout(updatePreview, 800);
+        });
+        form.addEventListener('change', function () {
+            clearTimeout(timer);
+            timer = setTimeout(updatePreview, 300);
+        });
+    }
+})();
+</script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#kategoriSelect').select2({
+        placeholder: '-- Pilih Kategori --',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: () => 'Kategori tidak ditemukan',
+            searching: () => 'Mencari...'
+        }
+    });
+});
+function toggleSidebarDropdown(btn) {
+    btn.closest('.sidebar-dropdown').classList.toggle('open');
+}
+
+function addBiodataRow() {
+    const container = document.getElementById('biodata-container');
+    const row = document.createElement('div');
+    row.className = 'biodata-row';
+    row.innerHTML = `
+        <button type="button" class="btn-remove-row" onclick="removeRow(this)" title="Hapus baris"><i class="bi bi-x-circle-fill"></i></button>
+        <div class="row g-2">
+            <div class="col-md-3"><label class="form-label">Label (ID)</label><input type="text" name="biodata_label[]" class="form-control" placeholder="Nama"></div>
+            <div class="col-md-3"><label class="form-label">Label (EN)</label><input type="text" name="biodata_label_en[]" class="form-control" placeholder="Name"></div>
+            <div class="col-md-2"><label class="form-label">Field Key</label><input type="text" name="biodata_field_key[]" class="form-control" placeholder="nama"><div class="field-key-hint">Nama kolom di database</div></div>
+            <div class="col-md-2"><label class="form-label">Suffix (ID)</label><input type="text" name="biodata_suffix[]" class="form-control" placeholder="Tahun"></div>
+            <div class="col-md-2"><label class="form-label">Suffix (EN)</label><input type="text" name="biodata_suffix_en[]" class="form-control" placeholder="years old"></div>
+            <div class="col-md-2 d-flex align-items-end pb-1"><div class="form-check"><input class="form-check-input" type="checkbox" name="biodata_is_admin[]" value="1"><label class="form-check-label" style="font-size:12px;">Diisi Admin</label></div></div>
+        </div>`;
+    container.appendChild(row);
+}
+
+function removeRow(btn) {
+    const rows = document.querySelectorAll('.biodata-row');
+    if (rows.length > 1) btn.closest('.biodata-row').remove();
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const el = event.target;
+        const orig = el.textContent;
+        el.textContent = '✓ copied';
+        setTimeout(() => el.textContent = orig, 1000);
+    });
+}
+</script>
+</body>
+</html>

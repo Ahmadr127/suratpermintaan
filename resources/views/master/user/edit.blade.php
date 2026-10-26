@@ -195,16 +195,13 @@
 
         <div class="section-divider"></div>
 
-        <div class="mb-3">
-            <label class="form-label">Role</label>
-            <select name="role" class="form-select" required>
-                @foreach($roles as $role)
-                    <option value="{{ $role->name }}" {{ old('role', $user->role) == $role->name ? 'selected' : '' }}>
-                        {{ $role->label }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+        <x-searchable-select
+            name="role"
+            label="Role"
+            :options="$roles->pluck('label', 'name')->toArray()"
+            :selected="old('role', $user->role)"
+            :required="true"
+            placeholder="Pilih role..." />
 
         <div class="mb-3">
             <label class="form-label">Password Baru</label>
