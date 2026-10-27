@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Role;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserLayananController;
@@ -16,14 +17,27 @@ use App\Http\Controllers\KategoriController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return redirect()->route('login');
+    if (! auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $role = Role::where('name', auth()->user()->role)->first();
+    if ($role && $role->redirect_to) {
+        return redirect($role->redirect_to);
+    }
+
+    abort(403, 'Role belum memiliki alur pengalihan (redirect_to).');
 })->name('home');
 
 // login page
-Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
+Route::get('/login', [AuthController::class, 'loginForm'])
+    ->middleware('guest')
+    ->name('login');
 
 // login process
-Route::post('/login', [AuthController::class, 'login'])->name('login.process');
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware(['guest', 'throttle:5,1'])
+    ->name('login.process');
 
 // logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

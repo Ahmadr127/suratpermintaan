@@ -27,42 +27,45 @@ class AuthController extends Controller
             'username' => 'required|string',
             'password' => 'required'
         ]);
+        if (! Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+            return back()->withErrors([
+                'username' => 'Username atau password salah',
+            ])->onlyInput('username');
+        }
+
+        $request->session()->regenerate();
+
+        $user = Auth::user();
 
         // Sinkronisasi ringan dari Simutu: segarkan profil + status user yang login.
         try {
             app(SimutuUserSyncService::class)->syncForUsername($request->username);
+            $user->refresh();
         } catch (\Throwable $e) {
             Log::warning('Simutu lazy sync gagal saat login: '.$e->getMessage());
         }
 
-        $user = \App\Models\User::where('username', $request->username)->first();
+        // Tolak akun yang dinonaktifkan di Simutu.
         if (
-            $user
-            && $user->simutu_status
+            $user->simutu_status
             && in_array($user->simutu_status, config('simutu_sync.block_login_statuses', ['non-aktif']))
         ) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return back()->withErrors([
                 'username' => 'Akun dinonaktifkan di sistem Simutu.',
             ])->onlyInput('username');
         }
 
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $request->session()->regenerate();
-
-            $user = Auth::user();
-
-            // Cek redirect_to dari tabel roles
-            $role = Role::where('name', $user->role)->first();
-            if ($role && $role->redirect_to) {
-                return redirect()->intended($role->redirect_to);
-            }
-
-            return redirect()->intended('/');
+        // Cek redirect_to dari tabel roles
+        $role = Role::where('name', $user->role)->first();
+        if ($role && $role->redirect_to) {
+            return redirect()->intended($role->redirect_to);
         }
 
-        return back()->withErrors([
-            'username' => 'Username atau password salah',
-        ])->onlyInput('username');
+        return redirect()->intended('/');
     }
 
     // =========================
